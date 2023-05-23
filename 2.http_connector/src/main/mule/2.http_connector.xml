@@ -4,6 +4,11 @@
 	xmlns:doc="http://www.mulesoft.org/schema/mule/documentation"
 	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.mulesoft.org/schema/mule/core http://www.mulesoft.org/schema/mule/core/current/mule.xsd
 http://www.mulesoft.org/schema/mule/http http://www.mulesoft.org/schema/mule/http/current/mule-http.xsd">
+	<flow name="exercise" doc:id="6b90f7fc-fc0e-43fc-85ec-f39a86689e5d">
+		<http:listener doc:name="Listener" doc:id="779100cb-4189-4bf4-a879-ec2b861043ee" config-ref="HTTP_Listener_config" path="/exercise/{ID}"/>
+		<logger level="INFO" doc:name="LOG Start" doc:id="6e0dca6d-cf05-49a3-bda2-155cd779981d" />
+		<set-payload value='#[%dw 2.0&#10;&#10;output application/json&#10;---&#10;&#10;{&#10;uriParams: attributes.uriParams,&#10;queryParams: attributes.queryParams&#10;}]' doc:name="Set Payload" doc:id="be265877-39b4-4260-9451-d66d3e7f4ef6" />
+	</flow>
 	<flow name="basics" doc:id="cd007065-94a3-45bf-a7b9-7aea95b8cc26" >
 		<http:listener doc:name="HTTP GET" doc:id="03ee513a-2032-4c2d-80a8-0306d21f81e8" config-ref="HTTP_Listener_config" path="/basics/*" allowedMethods="GET">
 			<http:response >
