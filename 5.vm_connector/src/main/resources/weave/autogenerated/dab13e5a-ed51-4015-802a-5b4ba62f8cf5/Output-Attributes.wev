@@ -1,0 +1,9 @@
+%dw 2.0
+
+type auto_dab13e5a_ed51_4015_802a_5b4ba62f8cf5_Output_Attributes = {|
+  correlationId?: String, 
+  queueName?: String, 
+  timestamp?: DateTime {"typeId": "java.time.LocalDateTime"}
+|} {"typeAlias": "VMMessageAttributes",
+"typeId": "org.mule.extensions.vm.api.VMMessageAttributes"}
+
