@@ -488,5 +488,40 @@ output application/json
 }]]></ee:set-payload>
 			</ee:message>
 		</ee:transform>
+		<ee:transform doc:name="returns only the values of matching keys within an object" doc:id="45bad7d7-6bcd-4c59-9022-5b271db673ee" >
+			<ee:message >
+				<ee:set-payload ><![CDATA[%dw 2.0
+
+//create arrays
+
+var booksList = [
+	book: {
+		bookId : 101,
+		title: "mulesoft course",
+		"price": "20.00"
+	},
+	book: {
+		bookId : 202,
+		title: "mulesoft fundamentals",
+		"price": "10.00"
+	},
+	book: {
+		bookId : 303,
+		title: "mulesoft essentials",
+		"price": "15.00"
+	}
+]
+
+
+output application/json
+---
+{
+	//lets get all the prices > 15.00
+	"prices": booksList.book.*price[?($>15)]
+	
+	//? -> validates if the key "price" exists" and matches condition
+}]]></ee:set-payload>
+			</ee:message>
+		</ee:transform>
 	</flow>
 </mule>
