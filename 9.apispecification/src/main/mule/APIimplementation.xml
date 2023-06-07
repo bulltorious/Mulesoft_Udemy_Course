@@ -1,0 +1,57 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<mule xmlns:vm="http://www.mulesoft.org/schema/mule/vm" xmlns:db="http://www.mulesoft.org/schema/mule/db"
+	xmlns="http://www.mulesoft.org/schema/mule/core"
+	xmlns:doc="http://www.mulesoft.org/schema/mule/documentation" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.mulesoft.org/schema/mule/core http://www.mulesoft.org/schema/mule/core/current/mule.xsd
+http://www.mulesoft.org/schema/mule/db http://www.mulesoft.org/schema/mule/db/current/mule-db.xsd
+http://www.mulesoft.org/schema/mule/vm http://www.mulesoft.org/schema/mule/vm/current/mule-vm.xsd">
+	<flow name="getAllArtists" doc:id="080e8988-311f-4e5d-a623-6195d4ba0bda" >
+		<db:select doc:name="Select all artists" doc:id="f00aefbf-8c10-4444-bf31-261b9fed33e4" config-ref="Database_Config">
+			<db:sql ><![CDATA[SELECT * FROM artists;]]></db:sql>
+		</db:select>
+		<set-payload value="#[%dw 2.0&#10;&#10;output application/json&#10;---&#10;payload]" doc:name="Set Payload from JAVA to JSON" doc:id="630af585-502a-409b-a3d8-4930264fe1a5" />
+	</flow>
+	<flow name="createNewArtist" doc:id="93701c50-cc3c-47f3-a71d-aa63e73caa0a" >
+		<vm:listener doc:name="Queue Listener" doc:id="aa1c0065-d2b5-4e37-95fe-15f8477ca602" config-ref="VM_Config" queueName="artistInfo.toPost"/>
+		<db:insert doc:name="Insert new artist" doc:id="e2654b47-7b73-490c-a59c-28b95612a203" config-ref="Database_Config" autoGenerateKeys="true">
+			<db:sql ><![CDATA[Insert INTO artists (name, genre) VALUES (:artistName, :artistGenre)]]></db:sql>
+			<db:input-parameters ><![CDATA[#[{
+	'artistName':payload.artistName,
+	'artistGenre':payload.genre
+}]]]></db:input-parameters>
+		</db:insert>
+		<set-payload value="#[%dw 2.0&#10;&#10;output application/json&#10;---&#10;payload]" doc:name="Set Payload from JAVA to JSON" doc:id="cfdb7216-8ffa-4e82-ab3f-6f83e9461dcf" />
+	</flow>
+	<flow name="getArtistByID" doc:id="35cf8317-e133-4b58-aab7-e216d4b9e116" >
+		<vm:listener queueName="artistId.toGet" doc:name="Listener" doc:id="58f4bb2b-d505-42b8-af48-d657270a4017" config-ref="VM_Config"/>
+		<db:select doc:name="Select artist by ID" doc:id="f9ef620c-0cbe-4b80-afeb-84b85a95d902" config-ref="Database_Config">
+			<db:sql ><![CDATA[SELECT * FROM artists WHERE id = :artistID;]]></db:sql>
+			<db:input-parameters ><![CDATA[#[{
+	'artistID':payload
+}]]]></db:input-parameters>
+		</db:select>
+		<set-payload value="#[%dw 2.0&#10;&#10;output application/json&#10;---&#10;payload]" doc:name="Set Payload from JAVA to JSON" doc:id="5a2abcd1-5197-44fa-8fa1-78cb1b112d10" />
+	</flow>
+	<flow name="deleteArtists" doc:id="f98e461f-1567-47fd-be35-416d439784ce" >
+		<vm:listener doc:name="Queue Listener" doc:id="4643bc0d-bed2-4c0d-8b98-0d6b1e312bec" config-ref="VM_Config" queueName="artistId.toDelete"/>
+		<db:delete doc:name="Delete artist" doc:id="15b63595-0818-4231-b25e-a34be935460a" config-ref="Database_Config">
+			<db:sql ><![CDATA[DELETE FROM artists where id = :artistID;]]></db:sql>
+			<db:input-parameters ><![CDATA[#[{
+	'artistID':payload
+}]]]></db:input-parameters>
+		</db:delete>
+		<set-payload value="#[%dw 2.0&#10;&#10;output application/json&#10;---&#10;payload]" doc:name="Set Payload from JAVA to JSON" doc:id="2f82bee0-2ce4-428b-8534-6dd47b266eef" />
+	</flow>
+	<flow name="updateArtistInfo" doc:id="b0e5459a-62a8-44db-b0e1-b578ea340508" >
+		<vm:listener doc:name="Queue Listener" doc:id="c49bd074-d991-4810-b068-d0f4b23bd0b8" config-ref="VM_Config" queueName="artistInfo.toPut"/>
+		<db:update doc:name="Update artist from data" doc:id="d5f0dfb3-300f-4dd6-aaee-131f478a2273" config-ref="Database_Config">
+			<db:sql ><![CDATA[UPDATE artists SET genre = :artistGenre WHERE id = :artistID;]]></db:sql>
+			<db:input-parameters ><![CDATA[#[{
+	
+	'artistGenre': payload.artistINFO.genre,
+	'artistID': payload.artistID
+}]]]></db:input-parameters>
+		</db:update>
+		<set-payload value="#[%dw 2.0&#10;&#10;output application/json&#10;---&#10;payload]" doc:name="Set Payload from JAVA to JSON" doc:id="7e670d58-8c1c-4ff8-bd37-1c1b9df574bf" />
+	</flow>
+</mule>
